@@ -3,6 +3,7 @@
   :init (do 
           (def os "macos")
           (def version "0.1.0"))
+  build (shell "go build -o pod-babashka-docker")
   aarch64 (do 
             (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "aarch64") {}))
   x86     (do 
