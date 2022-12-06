@@ -2,7 +2,12 @@
  {:requires ([babashka.fs :as fs])
   :init (do 
           (def os "macos")
-          (def arch "aarch64")
           (def version "0.1.0"))
   aarch64 (do 
-            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" os arch version) {}))}}
+            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "aarch64") {}))
+  x86     (do 
+            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "x86_64") {}))
+  linux-x86 
+          (do
+            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "amd64") {}))}}
+
