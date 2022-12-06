@@ -10,5 +10,5 @@
             (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "x86_64") {}))
   linux-x86 
           (do
-            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version os "amd64") {}))}}
+            (shell (format "zip pod-babashka-docker-%s-%s-%s.zip pod-babashka-docker" version "linux" "amd64") {}))}}
 

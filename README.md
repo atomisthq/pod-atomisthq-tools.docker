@@ -36,7 +36,7 @@ This is a [babashka pod](https://github.com/babashka/pods) that binds some golan
 To build the golang `parser` binary locally, run `go build`.
 
 ```bash
-go build
+go build -o pod-babashka-docker
 ```
 
 ## Contributing
