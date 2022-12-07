@@ -31,6 +31,8 @@ This is a [babashka pod](https://github.com/babashka/pods) that binds some golan
 (docker/parse-dockerfile "FROM \\\n    gcr.io/whatever:tag\nCMD [\"run\"]")
 ```
 
+Loading `'atomisthq/docker` from the pod registry will download the binary into `${user.home}/.babashka/pods/registry` (the `$BABASHKA_PODS_DIR` environment variable will be used if it exists).
+
 ## Building
 
 To build the golang `parser` binary locally, run `go build`.
