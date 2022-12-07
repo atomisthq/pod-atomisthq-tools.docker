@@ -14,7 +14,7 @@ This is a [babashka pod](https://github.com/babashka/pods) that binds some golan
 #_(pods/load-pod "./parser")
 
 ;; load-pod will create this namespace with two vars
-(require '[pod.babashka.docker :as docker])
+(require '[pod.atomisthq.docker :as docker])
 
 ;; parse image names using github.com/docker/distribution 
 ;; turns golang structs into clojure maps
