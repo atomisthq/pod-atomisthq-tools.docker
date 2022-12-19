@@ -4,7 +4,8 @@
           (def n "pod-atomisthq-tools.docker")
           (def os "macos")
           (def version "0.1.0"))
-  build (shell (format "go build -o %s" n))
+  build (do (shell (format "go build -o %s" n))
+            (fs/copy "pod-atomisthq-tools.docker" "/Users/slim/.babashka/pods/repository/atomisthq/tools.docker/0.1.0/" {:replace-existing true}))
   aarch64 (do 
             (shell (format "zip %s-%s-%s-%s.zip %s" n version os "aarch64" n) {}))
   x86     (do 

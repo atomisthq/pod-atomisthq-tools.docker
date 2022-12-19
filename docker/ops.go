@@ -52,6 +52,35 @@ func parse_uri(s string) (Reference, error) {
 	return Reference{Path: path, Domain: domain, Tag: tag, Digest: digest}, err;
 }
 
+func run_sbom_tool(tx chan string, errors chan Error, image string) {
+	// TODO perhaps the tx channel returns valid edn strings and the error channel can just return Errors
+	// first message on errors channel signals that the client should expect no more sbom data
+}
+
+func generate_sbom(message *babashka.Message, s string) {
+	tx_channel := make(chan string)
+	error_channel := make(chan Error)
+
+	go func() error {
+		for {
+			select {
+			case tx := <-tx_channel:
+				err := babashka.WriteNotDoneInvokeResponse(message, tx)
+				if err != nil {
+					babashka.WriteErrorResponse(message, err)
+				}
+			case err, ok := <-error_channel:
+				if !ok {
+					
+				}
+				babashka.WriteInvokeResponse(message, err)
+			}
+		}
+	}()
+
+        run_sbom_tool(tx_channel, error_channel, s)
+	babashka.WriteInvokeResponse(message, "done")
+}
 
 func ProcessMessage(message *babashka.Message) (any, error) {
 	switch message.Op {
@@ -67,6 +96,24 @@ func ProcessMessage(message *babashka.Message) (any, error) {
 						},
 						{
 							Name: "parse-dockerfile",
+						},
+						{
+							Name: "sbom",
+							Code: `
+(defn sbom
+  ([image cb]
+   (sbom cb {}))
+  ([image cb opts]
+   (babashka.pods/invoke
+     "pod.atomisthq.docker"
+     'pod.atomisthq.docker/-generate-sbom
+     [image]
+     {:handlers {:success (fn [event]
+                            (cb (update event :type keyword)))
+                 :error   (fn [{:keys [:ex-message :ex-data]}]
+                            (binding [*out* *err*]
+                              (println "ERROR:" ex-message)))
+		 :done    (fn [] (println "Done"))}})))`,
 						},
 					},
 				},
@@ -88,6 +135,13 @@ func ProcessMessage(message *babashka.Message) (any, error) {
 			}
                         reader := strings.NewReader(args[0])
 			return parser.Parse(reader)
+		case "pod.atomisthq.docker/-generate-sbom":
+			args := []string{}
+			if err := json.Unmarshal([]byte(message.Args), &args); err != nil {
+			        return nil, err
+			}
+		        generate_sbom(message, args[0])
+			return nil,nil
 
 		default:
 			return nil, fmt.Errorf("Unknown var %s", message.Var)

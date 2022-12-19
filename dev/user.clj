@@ -18,3 +18,5 @@
 ;; returns the Result struct transformed to a clojure map
 (docker/parse-dockerfile "FROM \\\n    gcr.io/whatever:tag\nCMD [\"run\"]")
 
+;; run sbom generation on local image
+(docker/sbom "vonwig/clojure-base:latest" (fn [event] (println event)))
