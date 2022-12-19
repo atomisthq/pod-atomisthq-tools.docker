@@ -58,7 +58,7 @@ func run_sbom_tool(tx chan string, image string) error {
 	return nil
 }
 
-func generate_sbom(message *babashka.Message, s string) {
+func generate_sbom(message *babashka.Message, s string) error {
 	tx_channel := make(chan string)
 
 	go func() error {
@@ -73,12 +73,7 @@ func generate_sbom(message *babashka.Message, s string) {
 		}
 	}()
 
-	err := run_sbom_tool(tx_channel, s)
-	if err != nil {
-		babashka.WriteErrorResponse(message, err)
-	} else {
-		babashka.WriteInvokeResponse(message, "done")
-	}
+	return run_sbom_tool(tx_channel, s)
 }
 
 func ProcessMessage(message *babashka.Message) (any, error) {
@@ -101,18 +96,18 @@ func ProcessMessage(message *babashka.Message) (any, error) {
 							Code: `
 (defn sbom
   ([image cb]
-   (sbom cb {}))
+   (sbom image cb {}))
   ([image cb opts]
    (babashka.pods/invoke
      "pod.atomisthq.docker"
      'pod.atomisthq.docker/-generate-sbom
      [image]
      {:handlers {:success (fn [event]
-                            (cb (update event :type keyword)))
+                            (cb event))
                  :error   (fn [{:keys [:ex-message :ex-data]}]
                             (binding [*out* *err*]
                               (println "ERROR:" ex-message)))
-		 :done    (fn [] (println "Done"))}})))`,
+		 :done    (fn [] (println "Done callback"))}})))`,
 						},
 					},
 				},
@@ -139,8 +134,13 @@ func ProcessMessage(message *babashka.Message) (any, error) {
 			if err := json.Unmarshal([]byte(message.Args), &args); err != nil {
 				return nil, err
 			}
-			generate_sbom(message, args[0])
-			return nil, nil
+
+			err := generate_sbom(message, args[0])
+			if err != nil {
+				babashka.WriteErrorResponse(message, err)
+			} 
+
+			return "done", nil
 
 		default:
 			return nil, fmt.Errorf("Unknown var %s", message.Var)
