@@ -34,7 +34,7 @@ func parse_uri(s string) (Reference, error) {
 
 	ref, err := reference.Parse(s)
 	if err != nil {
-		return Reference{},err;
+		return Reference{}, err
 	}
 	//fmt.Printf("%s\n", reflect.TypeOf(ref));
 
@@ -49,17 +49,17 @@ func parse_uri(s string) (Reference, error) {
 		digest = digested.Digest().String()
 	}
 	//u, err := json.Marshal(Reference{Path: path, Domain: domain, Tag: tag, Digest: digest})
-	return Reference{Path: path, Domain: domain, Tag: tag, Digest: digest}, err;
+	return Reference{Path: path, Domain: domain, Tag: tag, Digest: digest}, err
 }
 
-func run_sbom_tool(tx chan string, errors chan Error, image string) {
+func run_sbom_tool(tx chan string, image string) error {
 	// TODO perhaps the tx channel returns valid edn strings and the error channel can just return Errors
 	// first message on errors channel signals that the client should expect no more sbom data
+	return nil
 }
 
 func generate_sbom(message *babashka.Message, s string) {
 	tx_channel := make(chan string)
-	error_channel := make(chan Error)
 
 	go func() error {
 		for {
@@ -69,17 +69,16 @@ func generate_sbom(message *babashka.Message, s string) {
 				if err != nil {
 					babashka.WriteErrorResponse(message, err)
 				}
-			case err, ok := <-error_channel:
-				if !ok {
-					
-				}
-				babashka.WriteInvokeResponse(message, err)
 			}
 		}
 	}()
 
-        run_sbom_tool(tx_channel, error_channel, s)
-	babashka.WriteInvokeResponse(message, "done")
+	err := run_sbom_tool(tx_channel, s)
+	if err != nil {
+		babashka.WriteErrorResponse(message, err)
+	} else {
+		babashka.WriteInvokeResponse(message, "done")
+	}
 }
 
 func ProcessMessage(message *babashka.Message) (any, error) {
@@ -133,15 +132,15 @@ func ProcessMessage(message *babashka.Message) (any, error) {
 			if err := json.Unmarshal([]byte(message.Args), &args); err != nil {
 				return nil, err
 			}
-                        reader := strings.NewReader(args[0])
+			reader := strings.NewReader(args[0])
 			return parser.Parse(reader)
 		case "pod.atomisthq.docker/-generate-sbom":
 			args := []string{}
 			if err := json.Unmarshal([]byte(message.Args), &args); err != nil {
-			        return nil, err
+				return nil, err
 			}
-		        generate_sbom(message, args[0])
-			return nil,nil
+			generate_sbom(message, args[0])
+			return nil, nil
 
 		default:
 			return nil, fmt.Errorf("Unknown var %s", message.Var)
