@@ -17,4 +17,4 @@ FROM alpine:3.17
 
 COPY repository/ /root/.babashka/pods/repository
 COPY --from=build /app/pod-atomisthq-tools.docker /root/.babashka/pods/repository/atomisthq/tools.docker/0.1.0
-RUN chmod 755 /.babashka/pods/repository/atomisthq/tools.docker/0.1.0/pod-atomisthq-tools.docker
+RUN chmod 755 /root/.babashka/pods/repository/atomisthq/tools.docker/0.1.0/pod-atomisthq-tools.docker
