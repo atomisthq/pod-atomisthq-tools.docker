@@ -9,7 +9,7 @@
                          (shell {:continue true} "docker buildx create --name=buildx-multi-arch --driver=docker-container --driver-opt=network=host")
                          (println "buildx-multi-arch is already running"))
                  :depends [check-for-builder]}
-  build-pod-image {:task (shell "docker buildx build --builder=buildx-multi-arch --push --platform=linux/amd64,linux/arm64,darwin/arm64 --tag=vonwig/pod-atomisthq-tools.docker .")
+  build-pod-image {:task (shell "docker buildx build --builder=buildx-multi-arch --push --platform=linux/amd64,linux/arm64 --tag=vonwig/pod-atomisthq-tools.docker .")
                    :depends [setup-builder]}
 
   build (do (shell (format "go build -o %s" n))
