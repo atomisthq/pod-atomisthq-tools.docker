@@ -1,4 +1,4 @@
-FROM golang:1.19-alpine AS build
+FROM golang:1.19-alpine@sha256:0ec0646e208ea58e5d29e558e39f2e59fccf39b7bda306cb53bbaff91919eca5 AS build
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ COPY babashka/ ./babashka/
 
 RUN CGO_ENABLED=0 go build -o pod-atomisthq-tools.docker
 
-FROM alpine:3.17
+FROM alpine:3.17@sha256:f71a5f071694a785e064f05fed657bf8277f1b2113a8ed70c90ad486d6ee54dc
 
 COPY repository/ /root/.babashka/pods/repository
 COPY --from=build /app/pod-atomisthq-tools.docker /root/.babashka/pods/repository/atomisthq/tools.docker/0.1.0
