@@ -13,7 +13,7 @@ COPY babashka/ ./babashka/
 
 RUN CGO_ENABLED=0 go build -o pod-atomisthq-tools.docker
 
-FROM alpine:3.17
+FROM alpine:3.17@sha256:f71a5f071694a785e064f05fed657bf8277f1b2113a8ed70c90ad486d6ee54dc
 
 COPY repository/ /root/.babashka/pods/repository
 COPY --from=build /app/pod-atomisthq-tools.docker /root/.babashka/pods/repository/atomisthq/tools.docker/0.1.0
